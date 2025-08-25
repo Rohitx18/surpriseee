@@ -253,16 +253,40 @@ We will witness you cute 24 coming, together, with love. 💕`;
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeNote(); });
 
     // Music play (optional)
+    // const audio = document.getElementById('bgm');
+    // const playBtn = document.getElementById('playMusic');
+    // playBtn.addEventListener('click', async ()=>{
+    //   try{ await audio.play(); playBtn.textContent = '⏸️ Pause music'; }
+    //   catch(e){ /* autoplay restrictions */ }
+    //   if(!audio.src){
+    //     // Tip: host an mp3 (GitHub, Dropbox raw, etc.) and put the URL below
+    //     audio.src = 'https://your-mp3-url-here.mp3';
+    //   }
+    //   if(!audio.paused){ audio.pause(); playBtn.textContent = '▶️ Play music'; } else { audio.play(); playBtn.textContent = '⏸️ Pause music'; }
+    // });
+
+
+    // Music play when note modal opens
     const audio = document.getElementById('bgm');
-    const playBtn = document.getElementById('playMusic');
-    playBtn.addEventListener('click', async ()=>{
-      try{ await audio.play(); playBtn.textContent = '⏸️ Pause music'; }
-      catch(e){ /* autoplay restrictions */ }
-      if(!audio.src){
-        // Tip: host an mp3 (GitHub, Dropbox raw, etc.) and put the URL below
-        audio.src = 'https://your-mp3-url-here.mp3';
-      }
-      if(!audio.paused){ audio.pause(); playBtn.textContent = '▶️ Play music'; } else { audio.play(); playBtn.textContent = '⏸️ Pause music'; }
+    const noteBtn = document.getElementById('openNote');
+    const modal = document.getElementById('noteModal');
+    const closeBtn = document.getElementById('closeNote');
+    
+    // When she clicks "Open Note"
+    noteBtn.addEventListener('click', () => {
+      modal.style.display = 'block';
+      // Try to play music softly
+      audio.volume = 0.5; // make it gentle
+      audio.play().catch(err => {
+        console.log("Autoplay blocked, needs user click:", err);
+      });
+    });
+    
+    // When she closes the modal
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      audio.pause(); // stop music when note is closed
+      audio.currentTime = 0; // reset to beginning
     });
 
     // Floating hearts generator
