@@ -221,21 +221,36 @@ We will witness your cute 24 coming, together, with love. 💕`;
     const closeBtn = document.getElementById('closeNote');
     const noteEl  = document.getElementById('note');
 
-    function typeWriter(text, el, speed=18){
+//    function typeWriter(text, el, speed=18){
+      //el.textContent = '';
+      //let i=0;
+      //function tick(){
+        //if(i < text.length){
+          //el.textContent += text[i];
+          //i++;
+          //setTimeout(tick, text[i-1]==="\n"? 90 : speed);
+        //} else {
+          //el.classList.remove('typewriter');
+          //confettiBurst();
+        //}
+      //}
+      //tick();
+    //}
+    function typeWriter(text, el, speed=40){   // slower speed (40ms per char)
       el.textContent = '';
-      let i=0;
+      let i = 0;
       function tick(){
         if(i < text.length){
-          el.textContent += text[i];
-          i++;
-          setTimeout(tick, text[i-1]==="\n"? 90 : speed);
-        } else {
-          el.classList.remove('typewriter');
-          confettiBurst();
-        }
+        el.textContent += text[i];
+        i++;
+        setTimeout(tick, text[i-1]==="\n"? 120 : speed); // also slower for line breaks
+      } else {
+      // Do NOT remove the typewriter class -> caret stays
+        confettiBurst();
       }
-      tick();
-    }
+     }
+     tick();
+   }
 
     function openNote(){
       backdrop.style.display = 'grid';
