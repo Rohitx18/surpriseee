@@ -1,1 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>💕 3-Day Countdown | A Little Surprise</title>
+  <meta name="description" content="A tiny romantic countdown with a secret note." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f0c29;          /* deep night */
+      --bg2:#302b63;         /* indigo */
+      --bg3:#24243e;         /* purple */
+      --card:#ffffff;
+      --muted:#8a8aa5;
+      --accent:#ff4d6d;      /* rosy */
+      --accent-2:#ffd6e0;    /* pale pink */
+      --glow: 0 0 30px rgba(255,77,109,.35);
+    }
 
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:#23222f;
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(255,77,109,.15), transparent 60%),
+                  radial-gradient(800px 600px at 80% 80%, rgba(255,214,224,.25), transparent 55%),
+                  linear-gradient(135deg, var(--bg), var(--bg2) 45%, var(--bg3));
+      overflow:hidden; /* hearts float behind */
+    }
+
+    /* Floating hearts canvas layer */
+    .hearts { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+
+    /* Center container */
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      position:relative;
+      z-index:1;
+    }
+
+    .card{
+      width:min(720px, 94vw);
+      background: linear-gradient(180deg, #fff, #fff9fb);
+      border-radius:24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.25), var(--glow);
+      padding:28px 22px 22px;
+      border:1px solid rgba(255,77,109,.15);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .title{
+      display:flex; align-items:center; gap:12px; justify-content:center;
+      font-weight:700; letter-spacing:.4px; font-size: clamp(20px, 4vw, 28px);
+      color:#2b293a; text-align:center; margin:4px 0 8px;
+    }
+    .title .script { font-family:'Great Vibes', cursive; font-size: clamp(28px, 6vw, 44px); color: var(--accent); }
+
+    .sub{ text-align:center; color:var(--muted); margin-bottom:18px; font-size:clamp(12px, 3.2vw, 14px); }
+
+    /* Countdown */
+    .countdown{ display:flex; justify-content:center; gap:12px; margin: 8px 0 18px; flex-wrap:wrap; }
+    .timebox{
+      background:#fff;
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:16px;
+      padding:14px 16px;
+      width: clamp(82px, 22vw, 140px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      text-align:center;
+    }
+    .timebox .num{ font-size: clamp(26px, 7vw, 40px); font-weight:700; line-height:1; }
+    .timebox .lbl{ font-size:12px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+
+    /* CTA / note reveal */
+    .cta{
+      display:flex; justify-content:center; margin: 18px 0 8px;
+    }
+    .btn{
+      cursor:pointer; border:0; padding:14px 22px; border-radius:999px; font-weight:700;
+      background: radial-gradient(100% 100% at 50% 0, #ff6b8b, #ff4d6d);
+      color:#fff; letter-spacing:.2px; box-shadow: 0 10px 20px rgba(255,77,109,.35);
+      transition: transform .15s ease, filter .2s ease;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+    .btn:hover{ filter: brightness(1.05); }
+
+    .hint{ text-align:center; color:#6f6f8e; font-size:12px; margin-top:8px; }
+
+    /* Modal */
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(18,16,35,.6); display:none; place-items:center; padding:20px; z-index:10; }
+    .modal{ width:min(680px, 94vw); background:#fff; border-radius:20px; padding:22px 20px; box-shadow: 0 30px 80px rgba(0,0,0,.45); border:1px solid rgba(0,0,0,.08); position:relative; }
+    .close{ position:absolute; top:10px; right:10px; border:0; background:#fff; border-radius:10px; width:40px; height:40px; box-shadow:0 6px 18px rgba(0,0,0,.12); cursor:pointer; }
+
+    .note-title{ font-family:'Great Vibes', cursive; font-size: clamp(28px, 6vw, 44px); color: var(--accent); text-align:center; margin: 10px 0 2px; }
+    .note-meta{ text-align:center; color:var(--muted); font-size:12px; }
+    .note{ margin:16px auto 8px; line-height:1.75; font-size: clamp(14px, 3.6vw, 16px); color:#2c293d; max-width:60ch; }
+
+    .typewriter{ overflow:hidden; white-space:pre-wrap; border-right: 2px solid rgba(0,0,0,0.25); animation: caret .8s step-end infinite; }
+    @keyframes caret { 50% { border-color: transparent; } }
+
+    /* Tiny footer */
+    .foot{ text-align:center; color:#9b9bb3; font-size:11px; margin-top:12px; }
+
+    /* Decorative corner ribbons */
+    .ribbon{
+      position:absolute; top:-60px; right:-60px; width:160px; height:160px; background: radial-gradient(120px 120px at 40% 40%, #ffd6e0, transparent 60%);
+      filter: blur(10px); opacity:.9; pointer-events:none;
+    }
+
+    /* Music control */
+    .music{
+      display:flex; justify-content:center; gap:10px; align-items:center; margin-top:8px; opacity:.85;
+    }
+    .music button{ border:0; border-radius:999px; padding:10px 14px; background:#fff; box-shadow:0 8px 20px rgba(0,0,0,.12); cursor:pointer; }
+
+    @media (max-width:420px){
+      .btn{ padding:12px 18px; }
+      .timebox{ padding:12px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- floating hearts layer -->
+  <div class="hearts" id="hearts"></div>
+
+  <main class="wrap">
+    <section class="card" aria-labelledby="title">
+      <div class="ribbon" aria-hidden="true"></div>
+      <h1 id="title" class="title">Countdown to <span class="script">Your Day</span> ✨</h1>
+      <p class="sub">29 August • 12:00 AM (IST)</p>
+
+      <div class="countdown" aria-live="polite" aria-label="Countdown timer to birthday">
+        <div class="timebox"><div class="num" id="d">00</div><div class="lbl">Days</div></div>
+        <div class="timebox"><div class="num" id="h">00</div><div class="lbl">Hours</div></div>
+        <div class="timebox"><div class="num" id="m">00</div><div class="lbl">Minutes</div></div>
+        <div class="timebox"><div class="num" id="s">00</div><div class="lbl">Seconds</div></div>
+      </div>
+
+      <div class="cta">
+        <button class="btn" id="openNote">Open your little note 💌</button>
+      </div>
+      <p class="hint">Tap to reveal. Works best with sound on 🎶</p>
+
+      <div class="music">
+        <button id="playMusic" aria-label="Play music">▶️ Play music</button>
+        <audio id="bgm" preload="auto">
+          <!-- Optional: replace with your own hosted mp3 link if you want -->
+          <source src="" type="audio/mpeg">
+        </audio>
+      </div>
+
+      <p class="foot">Made with ❤️ just for you</p>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="noteTitle" aria-hidden="true">
+    <div class="modal">
+      <button class="close" id="closeNote" aria-label="Close">✕</button>
+      <h2 class="note-title" id="noteTitle">A Cute Note For You....</h2>
+      <p class="note-meta">(3 days to go…)</p>
+      <div id="note" class="note typewriter"></div>
+      <p class="foot">– Your Golden Retriever ❤️</p>
+    </div>
+  </div>
+
+  <script>
+    const HER_NAME = "Hello Love";
+    const NOTE_TEXT = `,
+
+Just a little something to make your Monday sweeter 🍫
+This is Day 1 of your birthday countdown—
+I can’t wait to celebrate YOU.
+
+Till then… keep this smile ready for me. 💕`;
+
+    
+    const TARGET_ISO = '2025-08-29T00:00:00+05:30';
+
+    function nowInIST(){
+      const str = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+      return new Date(str);
+    }
+
+    const target = new Date(TARGET_ISO);
+
+    function updateCountdown(){
+      const now = nowInIST();
+      let diff = target - now;
+      if (diff < 0) diff = 0;
+      const sec = Math.floor(diff / 1000);
+      const d = Math.floor(sec / 86400);
+      const h = Math.floor((sec % 86400) / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = Math.floor(sec % 60);
+      document.getElementById('d').textContent = String(d).padStart(2,'0');
+      document.getElementById('h').textContent = String(h).padStart(2,'0');
+      document.getElementById('m').textContent = String(m).padStart(2,'0');
+      document.getElementById('s').textContent = String(s).padStart(2,'0');
+      if(diff===0){
+        document.querySelector('.sub').textContent = "It's your day! Happy Birthday 🎂";
+        clearInterval(timerId);
+      }
+    }
+    const timerId = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Modal logic + typewriter
+    const backdrop = document.getElementById('backdrop');
+    const openBtn = document.getElementById('openNote');
+    const closeBtn = document.getElementById('closeNote');
+    const noteEl  = document.getElementById('note');
+
+    function typeWriter(text, el, speed=18){
+      el.textContent = '';
+      let i=0;
+      function tick(){
+        if(i < text.length){
+          el.textContent += text[i];
+          i++;
+          setTimeout(tick, text[i-1]==="\n"? 90 : speed);
+        } else {
+          el.classList.remove('typewriter');
+          confettiBurst();
+        }
+      }
+      tick();
+    }
+
+    function openNote(){
+      backdrop.style.display = 'grid';
+      backdrop.setAttribute('aria-hidden','false');
+      noteEl.classList.add('typewriter');
+      typeWriter(NOTE_TEXT, noteEl);
+    }
+    function closeNote(){
+      backdrop.style.display = 'none';
+      backdrop.setAttribute('aria-hidden','true');
+    }
+    openBtn.addEventListener('click', openNote);
+    closeBtn.addEventListener('click', closeNote);
+    backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closeNote(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeNote(); });
+
+    // Music play (optional)
+    const audio = document.getElementById('bgm');
+    const playBtn = document.getElementById('playMusic');
+    playBtn.addEventListener('click', async ()=>{
+      try{ await audio.play(); playBtn.textContent = '⏸️ Pause music'; }
+      catch(e){ /* autoplay restrictions */ }
+      if(!audio.src){
+        // Tip: host an mp3 (GitHub, Dropbox raw, etc.) and put the URL below
+        audio.src = 'https://your-mp3-url-here.mp3';
+      }
+      if(!audio.paused){ audio.pause(); playBtn.textContent = '▶️ Play music'; } else { audio.play(); playBtn.textContent = '⏸️ Pause music'; }
+    });
+
+    // Floating hearts generator
+    const heartsLayer = document.getElementById('hearts');
+    function spawnHeart(){
+      const d = document.createElement('div');
+      const size = 10 + Math.random()*26;
+      d.textContent = '❤';
+      d.style.position='absolute';
+      d.style.left = Math.random()*100 + 'vw';
+      d.style.bottom = '-40px';
+      d.style.fontSize = size + 'px';
+      d.style.opacity = 0.6 + Math.random()*0.4;
+      d.style.filter = 'drop-shadow(0 3px 6px rgba(255,77,109,.35))';
+      heartsLayer.appendChild(d);
+      const rise = 110 + Math.random()*40;
+      const drift = (Math.random()*2-1) * 40;
+      const dur = 5000 + Math.random()*4000;
+      const start = performance.now();
+      function frame(t){
+        const p = Math.min(1, (t-start)/dur);
+        d.style.transform = `translate(${drift*p}px, ${-rise*p}vh) rotate(${p*25}deg)`;
+        d.style.opacity = 1-p;
+        if(p<1) requestAnimationFrame(frame); else d.remove();
+      }
+      requestAnimationFrame(frame);
+    }
+    setInterval(spawnHeart, 500);
+    for(let i=0;i<15;i++) setTimeout(spawnHeart, i*150);
+
+    // Simple confetti on reveal (emoji-based)
+    function confettiBurst(){
+      const emojis = ['✨','💖','🎉','💫','🌸'];
+      for(let i=0;i<24;i++){
+        const e = document.createElement('div');
+        e.textContent = emojis[(Math.random()*emojis.length)|0];
+        e.style.position='fixed';
+        e.style.left = (10 + Math.random()*80) + 'vw';
+        e.style.top = '-20px';
+        e.style.fontSize = (16 + Math.random()*18) + 'px';
+        e.style.zIndex = 20;
+        document.body.appendChild(e);
+        const fall = 110 + Math.random()*30;
+        const drift = (Math.random()*2-1) * 40;
+        const rot = (Math.random()*2-1) * 90;
+        const dur = 3000 + Math.random()*2000;
+        const start = performance.now();
+        function step(t){
+          const p = Math.min(1, (t-start)/dur);
+          e.style.transform = `translate(${drift*p}vw, ${fall*p}vh) rotate(${rot*p}deg)`;
+          e.style.opacity = 1-p;
+          if(p<1) requestAnimationFrame(step); else e.remove();
+        }
+        requestAnimationFrame(step);
+      }
+    }
+  </script>
+</body>
+</html>
